@@ -4,10 +4,10 @@ using FairyGUI;
 
 public class BasicsMain : MonoBehaviour
 {
-    private GComponent _mainView;
-    private GObject _backBtn;
-    private GComponent _demoContainer;
-    private Controller _viewController;
+    private GComponent _mainView; //主面板 相当与
+    private GObject _backBtn; //返回按钮
+    private GComponent _demoContainer; //内容包含
+    private Controller _viewController; //
     private Dictionary<string, GComponent> _demoObjects;
 
     public Gradient lineGradient;
@@ -33,22 +33,26 @@ public class BasicsMain : MonoBehaviour
     {
         Application.targetFrameRate = 60;
         Stage.inst.onKeyDown.Add(OnKeyDown);
-
+        //获取到UIPanel
         _mainView = this.GetComponent<UIPanel>().ui;
-
+        //获取到back按钮
         _backBtn = _mainView.GetChild("btn_Back");
         _backBtn.visible = false;
         _backBtn.onClick.Add(onClickBack);
 
+        //获取到包含组
         _demoContainer = _mainView.GetChild("container").asCom;
+        //c1控制器
         _viewController = _mainView.GetController("c1");
 
         _demoObjects = new Dictionary<string, GComponent>();
-
+        //获取全部子节点
         int cnt = _mainView.numChildren;
+        //遍历子物体
         for (int i = 0; i < cnt; i++)
         {
             GObject obj = _mainView.GetChildAt(i);
+            //找到btns组下的，组只是逻辑概念，不会映射出GameObejct在Unity中
             if (obj.group != null && obj.group.name == "btns")
                 obj.onClick.Add(runDemo);
         }
@@ -56,14 +60,16 @@ public class BasicsMain : MonoBehaviour
 
     private void runDemo(EventContext context)
     {
+        //点击有发送者名字
         string type = ((GObject)(context.sender)).name.Substring(4);
         GComponent obj;
         if (!_demoObjects.TryGetValue(type, out obj))
         {
+            //创建GObject
             obj = UIPackage.CreateObject("Basics", "Demo_" + type).asCom;
             _demoObjects[type] = obj;
         }
-
+        //移除
         _demoContainer.RemoveChildren();
         _demoContainer.AddChild(obj);
         _viewController.selectedIndex = 1;
@@ -128,18 +134,21 @@ public class BasicsMain : MonoBehaviour
     }
 
     //-----------------------------
+    //绘图
     private void PlayGraph()
     {
         GComponent obj = _demoObjects["Graph"];
 
         Shape shape;
-
+        //设置圆的角度，例如缺一角显示
         shape = obj.GetChild("pie").asGraph.shape;
         EllipseMesh ellipse = shape.graphics.GetMeshFactory<EllipseMesh>();
         ellipse.startDegree = 30;
         ellipse.endDegreee = 300;
         shape.graphics.SetMeshDirty();
 
+        //方块
+        //修改方块的顶点，从正方形变为梯形
         shape = obj.GetChild("trapezoid").asGraph.shape;
         PolygonMesh trapezoid = shape.graphics.GetMeshFactory<PolygonMesh>();
         trapezoid.usePercentPositions = true;
@@ -151,8 +160,11 @@ public class BasicsMain : MonoBehaviour
         trapezoid.texcoords.Clear();
         trapezoid.texcoords.AddRange(VertexBuffer.NormalizedUV);
         shape.graphics.SetMeshDirty();
+        //给shape载入一张图
         shape.graphics.texture = (NTexture)UIPackage.GetItemAsset("Basics", "change");
 
+        //线
+        //由直线变为爱心交叉曲线
         shape = obj.GetChild("line").asGraph.shape;
         LineMesh line = shape.graphics.GetMeshFactory<LineMesh>();
         line.lineWidthCurve = AnimationCurve.Linear(0, 25, 1, 10);
@@ -176,6 +188,8 @@ public class BasicsMain : MonoBehaviour
             ((NGraphics)t.target).SetMeshDirty();
         });
 
+        //线
+        //由直线变为折线
         shape = obj.GetChild("line2").asGraph.shape;
         LineMesh line2 = shape.graphics.GetMeshFactory<LineMesh>();
         line2.lineWidth = 3;
@@ -190,6 +204,8 @@ public class BasicsMain : MonoBehaviour
         });
         shape.graphics.SetMeshDirty();
 
+        //线
+        //由直线变为正弦曲线
         GObject image = obj.GetChild("line3");
         LineMesh line3 = image.displayObject.graphics.GetMeshFactory<LineMesh>();
         line3.lineWidth = 30;
@@ -210,11 +226,13 @@ public class BasicsMain : MonoBehaviour
     }
 
     //------------------------------
+    //文本控制
     private void PlayText()
     {
         GComponent obj = _demoObjects["Text"];
         obj.GetChild("n12").asRichTextField.onClickLink.Add((EventContext context) =>
         {
+            //一个富文本对应多个超链，href后面字符串是超链的内容
             GRichTextField t = context.sender as GRichTextField;
             t.text = "[img]ui://Basics/pet[/img][color=#FF0000]You click the link[/color]：" + context.data;
         });

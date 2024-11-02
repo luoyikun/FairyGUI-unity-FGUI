@@ -38,8 +38,9 @@ Shader "FairyGUI/Image"
             ReadMask [_StencilReadMask]
             WriteMask [_StencilWriteMask]
         }
-
+		//关闭剔除，确保两面都被渲染。
         Cull Off
+		//关闭光照计算
         Lighting Off
         ZWrite Off
         Fog { Mode Off }

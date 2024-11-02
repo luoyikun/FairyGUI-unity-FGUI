@@ -10,6 +10,7 @@ namespace FairyGUI
 {
     /// <summary>
     /// Component
+    /// 代表了一个容器组件，可以包含多个基础显示对象或其他GComponent
     /// </summary>
     public class GComponent : GObject
     {
