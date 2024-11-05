@@ -253,6 +253,7 @@ public class BasicsMain : MonoBehaviour
         int cnt = testNames.Length;
         for (int i = 0; i < cnt; i++)
         {
+            //item是GComponent
             GButton item = list1.AddItemFromPool().asButton;
             item.GetChild("t0").text = "" + (i + 1);
             item.GetChild("t1").text = testNames[i];
@@ -315,7 +316,8 @@ public class BasicsMain : MonoBehaviour
         if (_pm == null)
         {
             _pm = new PopupMenu();
-            _pm.AddItem("Item 1", __clickMenu);
+            GButton btn = _pm.AddItem("Item 1", __clickMenu);
+            btn.data = 123;
             _pm.AddItem("Item 2", __clickMenu);
             _pm.AddItem("Item 3", __clickMenu);
             _pm.AddItem("Item 4", __clickMenu);
@@ -334,6 +336,7 @@ public class BasicsMain : MonoBehaviour
 
         obj.GetChild("n1").onClick.Add(() =>
         {
+            //默认出现在鼠标位置，挂载在Stage/GRoot/Component12路径下
             GRoot.inst.ShowPopup(_popupCom);
         });
 
@@ -348,6 +351,11 @@ public class BasicsMain : MonoBehaviour
     {
         GObject itemObject = (GObject)context.data;
         UnityEngine.Debug.Log("click " + itemObject.text);
+
+        if (itemObject.data != null)
+        {
+            Debug.Log($"item.data={itemObject.data}");
+        }
     }
 
     //------------------------------
@@ -408,13 +416,14 @@ public class BasicsMain : MonoBehaviour
         b.onDragStart.Add((EventContext context) =>
         {
             //Cancel the original dragging, and start a new one with a agent.
-            context.PreventDefault();
+            context.PreventDefault(); //注释这句，整个图标都会被拖动。使用这句创建个虚影
 
             DragDropManager.inst.StartDrag(b, b.icon, b.icon, (int)context.data);
         });
 
         GButton c = obj.GetChild("c").asButton;
         c.icon = null;
+        //onDrop有GObject被拖入组件内
         c.onDrop.Add((EventContext context) =>
         {
             c.icon = (string)context.data;
@@ -422,13 +431,17 @@ public class BasicsMain : MonoBehaviour
 
         GObject bounds = obj.GetChild("n7");
         Rect rect = bounds.TransformRect(new Rect(0, 0, bounds.width, bounds.height), GRoot.inst);
-
+        //rect x:-503,y:146,width:440,height:413
+        
         //---!!Because at this time the container is on the right side of the stage and beginning to move to left(transition), so we need to caculate the final position
+        //container在右边
         rect.x -= obj.parent.x;
+        //rect.x = 640
         //----
 
         GButton d = obj.GetChild("d").asButton;
         d.draggable = true;
+        //禁止拖出边界
         d.dragBounds = rect;
     }
 
